@@ -4,7 +4,7 @@ url = "http://127.0.0.1:8000/speech"
 headers = {"Authorization": "Bearer lit", "Content-Type": "application/json"}
 data = {
     "prompt": "Hey, how are you doing today?",
-    "description": "A female speaker delivers a slightly expressive and animated speech with a moderate speed and pitch. The recording is of very high quality, with the speaker's voice sounding clear and very close up.",
+    "description": "Jon's voice is monotone yet slightly fast in delivery, with a very close recording that almost has no background noise.",
 }
 
 response = requests.post(url, json=data)

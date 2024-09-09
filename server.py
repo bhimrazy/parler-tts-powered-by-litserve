@@ -13,7 +13,6 @@ DEFAULT_DESCRIPTION = "Jon's voice is monotone yet slightly fast in delivery, wi
 class ParlerTTSAPI(ls.LitAPI):
     def setup(self, device):
         self.device = device
-
         # need to set padding max length
         self.max_length = 50
 
@@ -23,16 +22,20 @@ class ParlerTTSAPI(ls.LitAPI):
         attn_implementation = "flash_attention_2"
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = ParlerTTSForConditionalGeneration.from_pretrained(
-            model_name, attn_implementation=attn_implementation
-        ).to(device, dtype=torch.bfloat16)
+            model_name,
+            device_map=device,
+            attn_implementation=attn_implementation,
+            torch_dtype=torch.bfloat16,
+        )
 
         # compile the forward pass
-        self.compile_mode = "reduce-overhead"
-        self.model.generation_config.cache_implementation = "static"
-        self.model.forward = torch.compile(self.model.forward, mode=self.compile_mode)
+        # self.model.generation_config.cache_implementation = "static"
+        # self.model.forward = torch.compile(
+        #     self.model.forward, mode="default", fullgraph=True
+        # )
 
-        # warmup
-        self._warmup()
+        # # warmup
+        # self._warmup()
 
     def _warmup(self):
         # warmup
@@ -42,7 +45,7 @@ class ParlerTTSAPI(ls.LitAPI):
             return_tensors="pt",
             padding="max_length",
             max_length=self.max_length,
-        ).to(self.compile_mode)
+        ).to(self.device)
 
         model_kwargs = {
             **inputs,
@@ -50,7 +53,7 @@ class ParlerTTSAPI(ls.LitAPI):
             "prompt_attention_mask": inputs.attention_mask,
         }
 
-        n_steps = 1 if self.compile_mode == "default" else 2
+        n_steps = 2
         for _ in range(n_steps):
             _ = self.model.generate(**model_kwargs)
         print("Warmed up!")
@@ -66,16 +69,13 @@ class ParlerTTSAPI(ls.LitAPI):
             self.device
         )
 
-        inputs = {
-            "input_ids": input_ids,
-            "prompt_input_ids": prompt_input_ids,
-        }
+        inputs = {"input_ids": input_ids, "prompt_input_ids": prompt_input_ids}
 
         return inputs
 
     def predict(self, inputs):
         generation = self.model.generate(**inputs)
-        audio_arr = generation.cpu().numpy().squeeze()
+        audio_arr = generation.cpu().float().numpy().squeeze()
         buffer = io.BytesIO()
         sf.write(buffer, audio_arr, self.model.config.sampling_rate, format="wav")
         return buffer.getvalue()
