@@ -1,0 +1,8 @@
+accelerate
+bitsandbytes
+git+https://github.com/huggingface/parler-tts.git
+litserve
+pydub
+torch
+transformers
+flash-attn
