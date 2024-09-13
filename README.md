@@ -1,7 +1,10 @@
-# Speech Generation API with Parler TTS powered by LitServe
+# Deploy a Speech Generation API using Parler TTS  powered by LitServe
 
 <img src="https://huggingface.co/datasets/parler-tts/images/resolve/main/thumbnail.png" alt="Parler Logo" width="800" style="margin-left:'auto' margin-right:'auto' display:'block'"/>
 
+<a target="_blank" href="https://lightning.ai/bhimrajyadav/studios/deploy-a-speech-generation-api-using-parler-tts-powered-by-litserve">
+  <img src="https://pl-bolts-doc-images.s3.us-east-2.amazonaws.com/app-2/studio-badge.svg" alt="Open In Studio"/>
+</a>
 
 # Parler-TTS Mini v1
 
